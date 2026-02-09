@@ -7,6 +7,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+      ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+      ECS_TASK_FAMILY: ${{ secrets.ECS_TASK_FAMILY }}
+      ECR_IMAGE: ${{ secrets.ECR_IMAGE }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,13 +27,24 @@ jobs:
       - name: Get current task definition
         run: |
           aws ecs describe-task-definition \
-            --task-definition ${{ secrets.ECS_TASK_FAMILY }} \
-            --query taskDefinition > task-definition.json
+            --task-definition "$ECS_TASK_FAMILY" \
+            --query taskDefinition \
+            > task-definition.json
 
-      - name: Update image in task definition
+      - name: Clean task definition & update image
         run: |
-          jq '.containerDefinitions[0].image = "${{ secrets.ECR_IMAGE }}"' \
-          task-definition.json > new-task-definition.json
+          jq '
+            del(
+              .taskDefinitionArn,
+              .revision,
+              .status,
+              .requiresAttributes,
+              .compatibilities,
+              .registeredAt,
+              .registeredBy
+            )
+            | .containerDefinitions[0].image = env.ECR_IMAGE
+          ' task-definition.json > new-task-definition.json
 
       - name: Register new task definition
         run: |
@@ -37,6 +54,7 @@ jobs:
       - name: Update ECS service
         run: |
           aws ecs update-service \
-            --cluster ${{ secrets.ECS_CLUSTER }} \
-            --service ${{ secrets.ECS_SERVICE }} \
-            --task-definition ${{ secrets.ECS_TASK_FAMILY }}
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE" \
+            --task-definition "$ECS_TASK_FAMILY"
+
