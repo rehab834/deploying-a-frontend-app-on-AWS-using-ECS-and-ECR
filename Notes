@@ -1,0 +1,28 @@
+###they are the roles that were created during the task of deploying a frontend app in aws using ecs and ecr :
+AWSServiceRoleForECS...........to enable the ec2 access the ecs
+AWS Service: ecs(Service-Linked Role)
+5 minutes ago
+AWSServiceRoleForElasticLoadBalancing
+AWS Service: elasticloadbalancing(Service-Linked Role)
+1 hour ago
+AWSServiceRoleForResourceExplorer
+AWS Service: resource-explorer-2(Service-Linked Role)
+6 minutes ago
+AWSServiceRoleForSupport
+AWS Service: support(Service-Linked Role)
+-
+AWSServiceRoleForTrustedAdvisor
+AWS Service: trustedadvisor(Service-Linked Role)
+-
+EC2-ECR-Access-Role..........to enable the ec2 to push the image on the ecr
+AWS Service: ec2
+22 minutes ago
+ECS-excution-role .........it is important for the task definition to work and i have forgot it
+...........................................................................................
+i have created 2 security groups 
+one for the app load balancer of the ec2
+one for the ecs task and the default
+.......................................
+#deletion of these clusters is related to the cloud formation ..on the aws console
+..................................................................................
+# the path for health check may be /index.html or /* or / according the app you are using 
